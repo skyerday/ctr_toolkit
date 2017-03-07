@@ -25,6 +25,8 @@ along with make_cdn_cia.  If not, see <http://www.gnu.org/licenses/>.
 #define RSA_4096_SHA1 0x00000100
 //Errors
 #define ERR_UNRECOGNISED_SIG 2
+#define TRUE 1
+#define FALSE 0
 
 typedef struct
 {

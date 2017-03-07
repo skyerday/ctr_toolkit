@@ -50,7 +50,7 @@ TIK_CONTEXT process_tik(FILE *tik)
 	
 	TIK_STRUCT tik_struct = get_tik_struct(sig_size,tik);
 	tik_context.tik_size = get_tik_size(sig_size);
-	tik_context.title_version = u8_to_u16(tik_struct.title_version,BIG_ENDIAN);
+	tik_context.title_version = u8_to_u16(tik_struct.title_version,_BIG_ENDIAN);
 	
 	if(tik_context.tik_size == ERR_UNRECOGNISED_SIG){
 		tik_context.result = ERR_UNRECOGNISED_SIG;
@@ -92,9 +92,9 @@ TMD_CONTEXT process_tmd(FILE *tmd)
 	
 	
 	TMD_STRUCT tmd_struct = get_tmd_struct(sig_size,tmd);
-	tmd_context.content_count = u8_to_u16(tmd_struct.content_count,BIG_ENDIAN);
+	tmd_context.content_count = u8_to_u16(tmd_struct.content_count,_BIG_ENDIAN);
 	tmd_context.tmd_size = get_tmd_size(sig_size,tmd_context.content_count);
-	tmd_context.title_version = u8_to_u16(tmd_struct.title_version,BIG_ENDIAN);
+	tmd_context.title_version = u8_to_u16(tmd_struct.title_version,_BIG_ENDIAN);
 	
 	tmd_context.cert_offset[0] = tmd_context.tmd_size;
 	tmd_context.cert_size[0] = get_cert_size(tmd_context.tmd_size,tmd);
@@ -156,7 +156,7 @@ CIA_HEADER set_cia_header(TMD_CONTEXT tmd_context, TIK_CONTEXT tik_context)
 	cia_header.content_size = get_content_size(tmd_context);
 	u64 index = 0;
 	for(int i = 0; i < tmd_context.content_count; i++){
-		index += (0x8000000000000000/(2<<u8_to_u16(tmd_context.content_struct[i].content_index,BE)))*2;
+		index += (0x8000000000000000/((u64)2<<u8_to_u16(tmd_context.content_struct[i].content_index,BE)))*2;
 	}
 	u64_to_u8(cia_header.content_index,index,BE);
 	return cia_header;
@@ -213,12 +213,12 @@ u64 get_content_size(TMD_CONTEXT tmd_context)
 
 u64 read_content_size(TMD_CONTENT_CHUNK_STRUCT content_struct)
 {
-	return u8_to_u64(content_struct.content_size,BIG_ENDIAN);
+	return u8_to_u64(content_struct.content_size,_BIG_ENDIAN);
 }
 
 u32 get_content_id(TMD_CONTENT_CHUNK_STRUCT content_struct)
 {
-	return u8_to_u32(content_struct.content_id,BIG_ENDIAN);
+	return u8_to_u32(content_struct.content_id,_BIG_ENDIAN);
 }
 
 int write_cia_header(TMD_CONTEXT tmd_context, TIK_CONTEXT tik_context, FILE *output)
@@ -318,7 +318,7 @@ int write_content_data(FILE *content, u64 content_size, FILE *output)
 	}
 	memset(&buffer,0x0,content_size);
 	fread(&buffer,content_size,1,content);
-	fwrite(&buffer,content_size,1,output);
+	return fwrite(&buffer,content_size,1,output);
 	
 }
 
@@ -348,10 +348,10 @@ TMD_CONTENT_CHUNK_STRUCT get_tmd_content_struct(u32 sig_size, u8 index, FILE *tm
 
 void print_content_chunk_info(TMD_CONTENT_CHUNK_STRUCT content_struct)
 {
-	printf("\n[+] Content ID:    %08x\n",u8_to_u32(content_struct.content_id,BIG_ENDIAN));
-	printf("[+] Content Index: %d\n",u8_to_u16(content_struct.content_index,BIG_ENDIAN));
-	printf("[+] Content Type:  %d\n",u8_to_u16(content_struct.content_type,BIG_ENDIAN));
-	printf("[+] Content Size:  0x%x\n",u8_to_u64(content_struct.content_size,BIG_ENDIAN));
+	printf("\n[+] Content ID:    %08x\n",u8_to_u32(content_struct.content_id,_BIG_ENDIAN));
+	printf("[+] Content Index: %d\n",u8_to_u16(content_struct.content_index,_BIG_ENDIAN));
+	printf("[+] Content Type:  %d\n",u8_to_u16(content_struct.content_type,_BIG_ENDIAN));
+	printf("[+] Content Size:  0x%x\n",u8_to_u64(content_struct.content_size,_BIG_ENDIAN));
 	printf("[+] SHA-256 Hash:  "); u8_hex_print_be(content_struct.sha_256_hash,0x20); printf("\n");
 }
 

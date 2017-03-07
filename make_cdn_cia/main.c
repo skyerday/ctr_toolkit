@@ -27,7 +27,7 @@ void app_title(void);
 void help(u8 *app_name);
 
 int main(int argc, char *argv[])
-{
+{    
 	app_title();
 	
 	//Argument Checks
